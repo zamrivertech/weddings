@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Convite</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background: #fdfaf6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .invitation-wrapper {
+      position: relative;
+      width: 600px;
+      padding: 60px 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.1);
+      text-align: center;
+      animation: fadeIn 2s ease-in;
+      margin: 0 2.5rem;
+    }
+
+    .floral-top-left, .floral-bottom-right {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      opacity: 0.9;
+      animation: fadeInImage 2s ease-in;
+    }
+
+    .floral-top-left {
+      top: -20px;
+      left: -40px;
+    }
+
+    .floral-bottom-right {
+      bottom: -40px;
+      right: 40px;
+    }
+
+    .floral-bottom-right img {
+      transform: scaleX(-1);
+    }
+
+    h1 {
+      font-size: 1rem;
+      color: #777;
+      margin-bottom: 10px;
+      animation: fadeInText 2s ease-in;
+    }
+
+    .name {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 20px;
+      animation: fadeInText 1.5s ease-in;
+    }
+
+    .details {
+      font-size: 1rem;
+      color: #555;
+      margin-top: 10px;
+      animation: fadeInText 1s ease-in;
+    }
+
+    .couple {
+      font-size: 2.8rem;
+      font-family: 'Brush Script MT', cursive;
+      color: #c94f7c;
+      margin: 20px 0;
+      animation: fadeInText .5s ease-in;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(1.02); }
+    }
+
+    .couple {
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+
+    #weddingDetails {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInText {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInImage {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 0.9; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="invitation-wrapper">
+    <div class="floral-top-left"><img src="./img/flowers.png" width="200px"></div>
+    <div class="floral-bottom-right"><img src="./img/flowers.png" width="200px"></div>
+
+    <h1>CONVITE PARA</h1>
+    <div class="name"></div>
+
+    <!-- Custom message will be injected here -->
+    <div id="weddingDetails">
+      <div class="details">É com grande alegria que convidamos para o casamento de</div>
+      <div class="couple">Lenine Culemedzana &<br>Assinate Windo</div>
+      <div class="details">
+        13 de Dezembro<br>
+        Mpadue, Fauzia's Bar.<br>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadGuestData() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      const wrapper = document.querySelector(".invitation-wrapper");
+      const nameEl = wrapper.querySelector(".name");
+      const weddingDetails = document.getElementById("weddingDetails");
+
+      if (!code) {
+        wrapper.innerHTML = `<h2 style="color:#a00;">Convite não encontrado</h2><p>Por favor, use o link correto para visualizar seu convite.</p>`;
+        return;
+      }
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzH-rQPAPe-tyR_d3WkuF-CfEfoccfwxwLG6Uv0dnAC98QU7v8XlGpvqMd06VlksJHK/exec?code=" + code);
+        const data = await response.json();
+
+        if (data.error) {
+          wrapper.innerHTML = `<h2 style="color:#a00;">Convite não encontrado</h2><p>Este código não corresponde a nenhum convidado autorizado.</p>`;
+        } else {
+          nameEl.innerText = data.name;
+
+          const customMsg = document.createElement("p");
+          customMsg.innerText = data.message;
+          customMsg.style.marginTop = "10px";
+          customMsg.style.color = "#444";
+          wrapper.insertBefore(customMsg, weddingDetails);
+
+          weddingDetails.style.display = "block";
+        }
+      } catch (err) {
+        wrapper.innerHTML = `<h2 style="color:#a00;">Erro ao carregar</h2><p>Não foi possível verificar seu convite. Tente novamente mais tarde.</p>`;
+      }
+    }
+
+    window.onload = loadGuestData;
+  </script>
+</body>
+</html>
